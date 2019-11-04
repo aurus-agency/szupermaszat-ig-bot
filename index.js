@@ -247,6 +247,7 @@ const checkForNewMessages = async () => {
   console.log('#############################################');
   console.log(users);
   for(let i = 0; i < unread.length; i += 1) {
+    console.log('Sending reply to user: ' + users[i]);
     const thread = ig.entity.directThread([unread[i].users[0].pk.toString()]);
     await thread.broadcastText(jokes[Math.floor(Math.random() * jokes.length)]);
   }
@@ -260,14 +261,13 @@ const checkForNewMessages = async () => {
   } catch (e) {
     throw new Error(e);
   }
-  await checkForNewMessages();
   if(loggedIn) {
     setInterval(async () => {
       console.log('Started checking for follower changes');
-      // await checkForFollowers();
+      await checkForFollowers();
       console.log('Checking for followers ended, going to next task...');
       console.log('Started checking for follower changes');
-      // await checkForNewMessages();
+      await checkForNewMessages();
       console.log('Checking for followers ended, now sleeping for 30s');
     }, 30000);
   }
