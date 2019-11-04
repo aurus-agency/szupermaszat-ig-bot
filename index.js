@@ -268,11 +268,11 @@ const checkForNewMessages = async () => {
     if (users[i].pk === 3252954429) {
       console.log(`🐾 Sending reply for my MOM ❤️ ${users[i].full_name}`);
       const thread = ig.entity.directThread([users[i].pk.toString()]);
-      await thread.broadcastText(vipMsg.mommy(users[i].full_name));
+      await thread.broadcastText(vipMsg.mommy);
     } else if (users[i].pk === 1021455391) {
       console.log(`🐾 Sending reply for my dad 🐾 ${users[i].full_name}`);
       const thread = ig.entity.directThread([users[i].pk.toString()]);
-      await thread.broadcastText(vipMsg.daddy(users[i].full_name));
+      await thread.broadcastText(vipMsg.daddy);
     } else if (users[i].pk === 1765151538 || users[i].pk === 289725460) {
       console.log(`🐾 Sending reply for my buddy ${users[i].full_name}`);
       const thread = ig.entity.directThread([users[i].pk.toString()]);
