@@ -238,14 +238,16 @@ const checkForNewMessages = async () => {
   const users = [];
   const unread = items.filter(x => x.read_state > 0);
   unread.forEach((msg) => {
-    users.push(msg.inviter.username);
+    if(msg.users.length > 0) {
+      users.push(msg.users[0].username);
+    }
   });
   console.log('#############################################');
   console.log(`The following users has left us message that we didn't read yet`);
   console.log('#############################################');
   console.log(users);
   for(let i = 0; i < unread.length; i += 1) {
-    const thread = ig.entity.directThread([unread[i].inviter.pk.toString()]);
+    const thread = ig.entity.directThread([unread[i].users[0].pk.toString()]);
     await thread.broadcastText(jokes[Math.floor(Math.random() * jokes.length)]);
   }
   return unread;
@@ -258,13 +260,14 @@ const checkForNewMessages = async () => {
   } catch (e) {
     throw new Error(e);
   }
+  await checkForNewMessages();
   if(loggedIn) {
     setInterval(async () => {
       console.log('Started checking for follower changes');
-      await checkForFollowers();
+      // await checkForFollowers();
       console.log('Checking for followers ended, going to next task...');
       console.log('Started checking for follower changes');
-      await checkForNewMessages();
+      // await checkForNewMessages();
       console.log('Checking for followers ended, now sleeping for 30s');
     }, 30000);
   }
