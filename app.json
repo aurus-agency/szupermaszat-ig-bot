@@ -1,0 +1,30 @@
+{
+  "addons": [
+    "mongolab"
+  ],
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ],
+  "env": {
+    "IG_PASSWORD": {
+      "required": true
+    },
+    "IG_USERNAME": {
+      "required": true
+    },
+    "MONGODB_URI": {
+      "required": true
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1
+    }
+  },
+  "name": "szupermaszat-ig-bot",
+  "scripts": {
+  },
+  "stack": "heroku-18"
+}
