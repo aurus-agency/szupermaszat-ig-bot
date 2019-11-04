@@ -13,13 +13,13 @@ let auth;
 
 const jokes = [
   `Woof woof 🐶
-    Köszi, hogy írtál nekem, bár révén, hogy én csak egy kutya vagyok, nem tudom válaszolni, de talán a gazdi :)
+    Köszi, hogy írtál nekem, bár révén, hogy én csak egy kutya vagyok, nem  tudok válaszolni, de talán a gazdi :)
     Viszont addig is itt egy vicc:
     - Mi az? Se keze se lába, de mégis felmegy a padlásra?
     - Ügyes nyomorék
     🐶🐾`,
   `Woof woof 🐶
-    Köszi, hogy írtál nekem, bár révén, hogy én csak egy kutya vagyok, nem tudom válaszolni, de talán a gazdi :)
+    Köszi, hogy írtál nekem, bár révén, hogy én csak egy kutya vagyok, nem  tudok válaszolni, de talán a gazdi :)
     Viszont addig is itt egy vicc:
     Cseng a telefon. Csak a kutya van otthon, ő veszi fel a kagylót.
     - Vau! - jelentkezik barátságosan.
@@ -30,7 +30,7 @@ const jokes = [
     - Akkor betűzöm, V, mint Viktor. A, mint Aladár, U, mint Ubul!
     🐶🐾`,
   `Woof woof 🐶
-    Köszi, hogy írtál nekem, bár révén, hogy én csak egy kutya vagyok, nem tudom válaszolni, de talán a gazdi :)
+    Köszi, hogy írtál nekem, bár révén, hogy én csak egy kutya vagyok, nem tudok válaszolni, de talán a gazdi :)
     Viszont addig is itt egy vicc:
     Egy fickó moziba megy, és meglepetten tapasztalja, hogy melette egy kutya ül. A kutya elmélyülten nézi a filmet, a vidám jeleneteknél nevet, a szomorúaknál sírva fakad. Előadás után kíváncsian kíséri a hazafelé tartó kutyát. A kutya bemegy egy házba, ahol egy nő már várja.
     - Magáé ez a kutya? - szólítja meg a nőt.
@@ -43,7 +43,7 @@ const jokes = [
     - Hát persze. Hiszen amikor a könyvet olvasta, azt végig nagyon unta...
     🐶🐾`,
   `Woof woof 🐶
-    Köszi, hogy írtál nekem, bár révén, hogy én csak egy kutya vagyok, nem tudom válaszolni, de talán a gazdi :)
+    Köszi, hogy írtál nekem, bár révén, hogy én csak egy kutya vagyok, nem tudok válaszolni, de talán a gazdi :)
     Viszont addig is itt egy vicc:
     Az iskolában azt kéri a tanár a gyerekektől, hogy mondjanak különböző állatokat.
     - Macska - mondja Kati.
@@ -54,7 +54,7 @@ const jokes = [
     - Tudom, de ez egy másik kutya.
     🐶🐾`,
   `Woof woof 🐶
-    Köszi, hogy írtál nekem, bár révén, hogy én csak egy kutya vagyok, nem tudom válaszolni, de talán a gazdi :)
+    Köszi, hogy írtál nekem, bár révén, hogy én csak egy kutya vagyok, nem tudok válaszolni, de talán a gazdi :)
     Viszont addig is itt egy vicc:
     Egy férfi felkeresi a pszichiátert, és elmondja a panaszát:
     - Doktor úr, segítsen rajtam, folyton azt képzelem, hogy kutya vagyok.
@@ -62,7 +62,7 @@ const jokes = [
     - Nem lehet, nekem tilos felmennem a kanapékra.
     🐶🐾`,
   `Woof woof 🐶
-    Köszi, hogy írtál nekem, bár révén, hogy én csak egy kutya vagyok, nem tudom válaszolni, de talán a gazdi :)
+    Köszi, hogy írtál nekem, bár révén, hogy én csak egy kutya vagyok, nem tudok válaszolni, de talán a gazdi :)
     Viszont addig is itt egy vicc:
     Egy férfi le akar foglalni egy szobát a nyaralása időtartamára Florida egyik tengerparti üdülőhelyén.
     Ír egy levelet a tulajdonosnak: "Lehetséges lenne-e hogy magammal hozzam a kutyámat? Nagyon jólnevelt és tisztántartott állat. Tarthatom-e a szobában az éjjelek folyamán?"
@@ -70,7 +70,7 @@ const jokes = [
     És ha a kutyája hajlandó jótállni magáért, akkor maga is maradhat."
     🐶🐾`,
   `Woof woof 🐶
-    Köszi, hogy írtál nekem, bár révén, hogy én csak egy kutya vagyok, nem tudom válaszolni, de talán a gazdi :)
+    Köszi, hogy írtál nekem, bár révén, hogy én csak egy kutya vagyok, nem tudok válaszolni, de talán a gazdi :)
     Viszont addig is itt egy vicc:
     Bemegy egy kutya a postára és fel akar adni egy táviratot. Elkezdi diktálni:
     - Vau, vau, vau, Vau, vau, vau, vau, vau, vau.
@@ -80,13 +80,29 @@ const jokes = [
     - Jó lenne, de sajnos semmi más nem jut az eszembe...
     🐶🐾`,
   `Woof woof 🐶
-    Köszi, hogy írtál nekem, bár révén, hogy én csak egy kutya vagyok, nem tudom válaszolni, de talán a gazdi :)
+    Köszi, hogy írtál nekem, bár révén, hogy én csak egy kutya vagyok, nem tudok válaszolni, de talán a gazdi :)
     Viszont addig is itt egy vicc:
     - Miért verte szét a rendőr a kutyaházat?
     - ???
     - Hogy ne kapja el az ebolát.
     🐶🐾`,
 ]
+
+const vipMsg = {
+  daddy: `Apa... vagy vigyél sétálni, vagy hagyjál 🐕🐾`,
+  mommy: `Anya ❤️ Nagyon szeretlek, és nagyon hiányzol 🐾 Maszatpuszi és remélem mihamarabb látlak 🐶 Pacsi
+  A te Maszatod ♥️`,
+  buddy: (name) => `Szia ${name} 🐾 Te a barátom vagy, és kösziiii, hogy írtál, hogy vagy mi újság veled? 🐾 A gazdit meg tudod hol éred el 🐶 Pacsi
+  Mani 🐾. `,
+}
+
+const vipReactions = {
+  daddy: `Apa...`,
+  mommy: `Anya ❤️ Köszi, hogy reagáltál 🐾 Szeretlek
+  A te Maszatod ♥️`,
+  buddy: (name) => `Szia ${name} 🐾 Köszönöm, hogy jó barátom vagy és reagáltál 🐶 Pacsi
+  Mani 🐾`,
+}
 
 const checkIfExists = async () => {
   let client = null;
@@ -239,17 +255,33 @@ const checkForNewMessages = async () => {
   const unread = items.filter(x => x.read_state > 0);
   unread.forEach((msg) => {
     if(msg.users.length > 0) {
-      users.push(msg.users[0].username);
+      users.push(msg.users[0]);
     }
   });
   console.log('#############################################');
   console.log(`The following users has left us message that we didn't read yet`);
   console.log('#############################################');
-  console.log(users);
-  for(let i = 0; i < unread.length; i += 1) {
-    console.log('Sending reply to user: ' + users[i]);
-    const thread = ig.entity.directThread([unread[i].users[0].pk.toString()]);
-    await thread.broadcastText(jokes[Math.floor(Math.random() * jokes.length)]);
+  users.forEach((user) => {
+    console.log(user.full_name, '(' + user.pk, user.username + ')');
+  });
+  for (let i = 0; i < users.length; i += 1) {
+    if (users[i].pk === 3252954429) {
+      console.log(`🐾 Sending reply for my MOM ❤️ ${users[i].full_name}`);
+      const thread = ig.entity.directThread([users[i].pk.toString()]);
+      await thread.broadcastText(vipMsg.mommy(users[i].full_name));
+    } else if (users[i].pk === 1021455391) {
+      console.log(`🐾 Sending reply for my dad 🐾 ${users[i].full_name}`);
+      const thread = ig.entity.directThread([users[i].pk.toString()]);
+      await thread.broadcastText(vipMsg.daddy(users[i].full_name));
+    } else if (users[i].pk === 1765151538 || users[i].pk === 289725460) {
+      console.log(`🐾 Sending reply for my buddy ${users[i].full_name}`);
+      const thread = ig.entity.directThread([users[i].pk.toString()]);
+      await thread.broadcastText(vipMsg.buddy(users[i].full_name));
+    } else {
+      console.log('Sending reply to user: ' + users[i].full_name);
+      const thread = ig.entity.directThread([users[i].pk.toString()]);
+      await thread.broadcastText(jokes[Math.floor(Math.random() * jokes.length)]);
+    }
   }
   return unread;
 }
@@ -261,6 +293,7 @@ const checkForNewMessages = async () => {
   } catch (e) {
     throw new Error(e);
   }
+  // await checkForNewMessages();
   if(loggedIn) {
     setInterval(async () => {
       console.log('Started checking for follower changes');
