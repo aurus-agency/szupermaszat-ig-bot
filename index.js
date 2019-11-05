@@ -372,7 +372,12 @@ const searchForUsersToFollow = async () => {
       timestamp: now,
     }, 'sonar');
   } catch (e) {
-    throw new Error('There was an error sending follow to user: ' + dbUsers[0].name)
+    await updateDocument(dbUsers[0]._id, {
+      following: true,
+      closed: true,
+      timestamp: now,
+    }, 'sonar');
+    throw new Error('There was an error sending follow to user: ' + dbUsers[0].name);
   }
   return 'Done';
 }
