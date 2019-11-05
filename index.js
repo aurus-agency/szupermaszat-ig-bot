@@ -314,7 +314,7 @@ const checkForNewMessages = async () => {
     console.log(user.full_name, '(' + user.pk, user.username + ')', disallowedUsers.includes(user.id) ? 'Msg' : 'No msg');
   });
   for (let i = 0; i < users.length; i += 1) {
-    if(disallowedUsers.includes(users[i].pk)) {
+    if(!disallowedUsers.includes(users[i].pk)) {
       if (users[i].pk === 3252954429) {
         console.log(`🐾 Sending reply for my MOM ❤️ ${users[i].full_name}`);
         const thread = ig.entity.directThread([users[i].pk.toString()]);
