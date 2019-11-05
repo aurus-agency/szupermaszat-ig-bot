@@ -274,9 +274,12 @@ const checkForFollowers = async () => {
     const arr = [];
     newFollowers.forEach((follower) => {
       const now = moment().unix();
+      const convertToDate = moment.unix(now).format();
+      const add1Day = moment(convertToDate).add(2, 'days');
+      const time = moment(add1Day).unix();
       arr.push({
         ...follower,
-        timestamp: now,
+        timestamp: time,
       })
     });
     await insertToDatabase(arr, 'users');
@@ -311,8 +314,11 @@ const checkForNewMessages = async () => {
       }
     } else {
       const now = moment().unix();
+      const convertToDate = moment.unix(now).format();
+      const add1Day = moment(convertToDate).add(2, 'days');
+      const time = moment(add1Day).unix();
       updateDocument(user._id, {
-        timestamp: now,
+        timestamp: time,
       }, 'users');
     }
   });
