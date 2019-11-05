@@ -348,11 +348,13 @@ const checkForFollowers = async () => {
         timestamp: time,
       })
     });
-    await insertToDatabase(arr, 'users');
-    console.log('#############################################');
-    console.log('The following users has been added to the database');
-    console.log('#############################################');
-    console.log(arr);
+    if(!errors.welcome.error) {
+      await insertToDatabase(arr, 'users');
+      console.log('#############################################');
+      console.log('The following users has been added to the database');
+      console.log('#############################################');
+      console.log(arr);
+    }
   }
 };
 
@@ -383,16 +385,20 @@ const checkForNewMessages = async () => {
       const convertToDate = moment.unix(now).format();
       const add1Day = moment(convertToDate).add(2, 'days');
       const time = moment(add1Day).unix();
-      updateDocument(user._id, {
-        timestamp: time,
-      }, 'users');
+      try {
+        await updateDocument(user._id, {
+          timestamp: time,
+        }, 'users');
+      } catch (e) {
+        console.error('User not in DB cause of not following us.');
+      }
     }
   });
   console.log('#############################################');
   console.log(`The following users has left us message that we didn't read yet`);
   console.log('#############################################');
   users.forEach((user) => {
-    console.log(user.full_name, '(' + user.pk, user.username + ')', disallowedUsers.includes(user.id) ? 'No msg' : 'Msg');
+    console.log(user.full_name, '(' + user.pk, user.username + ')', disallowedUsers.includes(user.id) ? '24 Hour lock' : 'Not locked');
   });
   for (let i = 0; i < users.length; i += 1) {
     if(!disallowedUsers.includes(users[i].pk)) {
@@ -417,7 +423,7 @@ const checkForNewMessages = async () => {
           errors.direct.message = e;
         }
       } else if (users[i].pk === 1765151538 || users[i].pk === 289725460) {
-        console.log(`🐾 Sending reply for my buddy ${users[i].full_name}`);
+        console.log(`🐾 Sending reply for my buddy ${users[i].full_name || users[i].username}`);
         const thread = ig.entity.directThread([users[i].pk.toString()]);
         try {
           await thread.broadcastText(vipMsg.buddy(users[i].full_name));
@@ -427,7 +433,7 @@ const checkForNewMessages = async () => {
           errors.direct.message = e;
         }
       } else {
-        console.log('Sending reply to user: ' + users[i].full_name);
+        console.log(`Sending reply to user: ${users[i].full_name || users[i].username}`);
         const thread = ig.entity.directThread([users[i].pk.toString()]);
         try {
           await thread.broadcastText(jokes[Math.floor(Math.random() * jokes.length)]);
@@ -601,6 +607,7 @@ const getAllItemsFromFeed = async(feed) => {
   // await checkForNewMessages();
   // await searchForUsersToFollow();
   // await checkForDirectRequests();
+  // await checkForNewMessages();
   if(loggedIn) {
     setInterval(async () => {
       if(!debounce) {
