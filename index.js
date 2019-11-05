@@ -212,7 +212,6 @@ const getFollowers = async () => {
   let users = [];
   do {
     items.push(await followers.items());
-    await forEachFunct(items);
   } while(followers.isMoreAvailable());
   items.forEach((outer) => {
     outer.forEach((inner) => {
@@ -220,6 +219,38 @@ const getFollowers = async () => {
     });
   });
   return users;
+};
+
+const getMessages = async () => {
+  console.log('Getting messages from inbox...');
+  const messages = await ig.feed.directInbox();
+  let items = [];
+  let users = [];
+  do {
+    items.push(await messages.items());
+  } while(messages.isMoreAvailable());
+  items.forEach((outer) => {
+    outer.forEach((inner) => {
+      users.push(inner);
+    });
+  });
+  return users;
+};
+
+const getPendingMessages = async () => {
+  console.log('Getting pending message requests...');
+  const messages = await ig.feed.directPending();
+  let items = [];
+  let pending = [];
+  do {
+    items.push(await messages.items());
+  } while(messages.isMoreAvailable());
+  items.forEach((outer) => {
+    outer.forEach((inner) => {
+      pending.push(inner);
+    });
+  });
+  return pending;
 };
 
 const checkForFollowers = async () => {
@@ -291,11 +322,11 @@ const checkForFollowers = async () => {
 };
 
 const checkForNewMessages = async () => {
-  const items = await ig.feed.directInbox().items();
+  const messages = await getMessages();
   const dbUsers = await findInDatabase({}, 'users');
   const users = [];
   const disallowedUsers = [];
-  const unread = items.filter(x => x.read_state > 0);
+  const unread = messages.filter(x => x.read_state > 0);
   unread.forEach((msg) => {
     if(msg.users.length > 0) {
       users.push(msg.users[0]);
@@ -326,7 +357,7 @@ const checkForNewMessages = async () => {
   console.log(`The following users has left us message that we didn't read yet`);
   console.log('#############################################');
   users.forEach((user) => {
-    console.log(user.full_name, '(' + user.pk, user.username + ')', disallowedUsers.includes(user.id) ? 'Msg' : 'No msg');
+    console.log(user.full_name, '(' + user.pk, user.username + ')', disallowedUsers.includes(user.id) ? 'No msg' : 'Msg');
   });
   for (let i = 0; i < users.length; i += 1) {
     if(!disallowedUsers.includes(users[i].pk)) {
@@ -346,25 +377,41 @@ const checkForNewMessages = async () => {
         console.log('Sending reply to user: ' + users[i].full_name);
         const thread = ig.entity.directThread([users[i].pk.toString()]);
         await thread.broadcastText(jokes[Math.floor(Math.random() * jokes.length)]);
-        await updateDocument(users[i]._id, {
-          timestamp: moment().unix(),
-        }, 'users');
+        
       }
     }
   }
   return unread;
+  /* await updateDocument(users[i]._id, {
+          timestamp: moment().unix(),
+        }, 'users'); */
 }
 
 const checkForDirectRequests = async () => {
-  const items = await ig.feed.directPending().items();
+  const dbUsers = await findInDatabase({}, 'users');
+  const messages = await getPendingMessages();
+  const users = [];
+  const unread = messages.filter(x => x.read_state > 0);
+  unread.forEach((msg) => {
+    if(msg.users.length > 0) {
+      users.push(msg.users[0]);
+    }
+  });
+  const unreadMessages = dbUsers.filter((elem) => users.find(({ pk }) => elem.id === pk));
   console.log('#############################################');
   console.log(`The following users would like to send us message, however it is pending`);
   console.log('#############################################');
-  items.forEach((user) => {
+  users.forEach((user) => {
     console.log(user.full_name, '(' + user.pk, user.username + ')');
   });
-  // TODO: Accept pending directs;
-  return items;
+  for (let i = 0; i < users.length; i += 1) {
+    console.log('Sending reply to user: ' + users[i].full_name);
+    const thread = ig.entity.directThread([users[i].pk.toString()]);
+    await thread.broadcastText(jokes[Math.floor(Math.random() * jokes.length)]);
+    /* await updateDocument(users[i]._id, {
+      timestamp: moment().unix(),
+    }, 'users'); */
+  }
 }
 
 const searchForUsersToFollow = async () => {
@@ -485,36 +532,37 @@ const getAllItemsFromFeed = async(feed) => {
   // await getAllItemsFromFeed(ig.feed.accountFollowers('')); // DO NOT UNCOMMENT ONLY FOR IMPORT
   // await checkForNewMessages();
   // await searchForUsersToFollow();
+  // await checkForDirectRequests();
   if(loggedIn) {
     setInterval(async () => {
       if(!debounce) {
         debouce = true;
         console.log('Started checking for follower changes');
-        await checkForFollowers();
+        // await checkForFollowers();
         console.log('Checking for followers ended, going to next task...');
         console.log('Started checking for direct messages');
-        await checkForDirectRequests();
+        // await checkForDirectRequests();
         console.log('Checking for direct messages ended, going to next task...');
         console.log('Started checking for new messages');
-        await checkForNewMessages();
+        // await checkForNewMessages();
         console.log('Checking for new messages ended, going to next task...');
         debouce = false;
       } else {
         console.log(`Previous job still didn't finished yet. Skipping this round`);
       }
-    }, 150000);
+    }, 600000);
     setInterval(async() => {
       if(!debounce2) {
         debounce2 = true;
         console.log('Searching for users to follow');
-        await searchForUsersToFollow();
+        // await searchForUsersToFollow();
         console.log('Searching for users to follow ended, going to next task...');
         console.log('Searching for users to unfollow');
-        await unfollowFollowedUsers();
+        // await unfollowFollowedUsers();
         console.log('Checking for users to unfollow ended, now sleeping for 30s');
         debounce2 = false;
       }
-    }, 300000);
+    }, 1800000);
   }
 })();
 
