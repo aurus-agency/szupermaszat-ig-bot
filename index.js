@@ -10,6 +10,8 @@ const { get } = require('lodash');
 const PORT = process.env.PORT || 5000;
 const ig = new IgApiClient();
 
+const debounce = false;
+
 let auth;
 
 const jokes = [
@@ -463,21 +465,27 @@ const getAllItemsFromFeed = async(feed) => {
   // await searchForUsersToFollow();
   if(loggedIn) {
     setInterval(async () => {
-      console.log('Started checking for follower changes');
-      await checkForFollowers();
-      console.log('Checking for followers ended, going to next task...');
-      console.log('Started checking for direct messages');
-      await checkForDirectRequests();
-      console.log('Checking for direct messages ended, going to next task...');
-      console.log('Started checking for new messages');
-      await checkForNewMessages();
-      console.log('Checking for new messages ended, going to next task...');
-      console.log('Searching for users to follow');
-      await searchForUsersToFollow();
-      console.log('Searching for users to follow ended, going to next task...');
-      console.log('Searching for users to unfollow');
-      await unfollowFollowedUsers();
-      console.log('Checking for users to unfollow ended, now sleeping for 30s');
+      if(!debounce) {
+        debouce = true;
+        console.log('Started checking for follower changes');
+        await checkForFollowers();
+        console.log('Checking for followers ended, going to next task...');
+        console.log('Started checking for direct messages');
+        await checkForDirectRequests();
+        console.log('Checking for direct messages ended, going to next task...');
+        console.log('Started checking for new messages');
+        await checkForNewMessages();
+        console.log('Checking for new messages ended, going to next task...');
+        console.log('Searching for users to follow');
+        await searchForUsersToFollow();
+        console.log('Searching for users to follow ended, going to next task...');
+        console.log('Searching for users to unfollow');
+        await unfollowFollowedUsers();
+        console.log('Checking for users to unfollow ended, now sleeping for 30s');
+        debouce = false;
+      } else {
+        console.log(`Previous job still didn't finished yet. Skipping this round`);
+      }
     }, 60000);
   }
 })();
