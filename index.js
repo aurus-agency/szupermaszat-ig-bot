@@ -15,6 +15,29 @@ let debounce2 = false;
 
 let auth;
 
+const errors = {
+  welcome: {
+    error: false,
+    message: null,
+  },
+  direct: {
+    error: false,
+    message: null,
+  },
+  directPending: {
+    error: false,
+    message: null,
+  },
+  follow: {
+    error: false,
+    message: null,
+  },
+  unfollow: {
+    error: false,
+    message: null,
+  },
+}
+
 const jokes = [
   `Woof woof 🐶
     Köszi, hogy írtál nekem, bár révén, hogy én csak egy kutya vagyok, nem  tudok válaszolni, de talán a gazdi :)
@@ -280,11 +303,17 @@ const checkForFollowers = async () => {
     });
     for (let i = 0; i < leavers.length; i += 1) {
       console.log('Sending leaving message for: ' + leavers[i].name);
-      const thread = ig.entity.directThread([leavers[i].id.toString()]);
-      await thread.broadcastText(`Woof woof 🐶
+      const thread = await ig.entity.directThread([leavers[i].id.toString()]);
+      try {
+        await thread.broadcastText(`Woof woof 🐶
         Kár, hogy elmész 😢
         Azért remélem visszatérsz 🐕
         Pacsi 🐾😢`);
+      } catch (e) {
+        console.error(e);
+        errors.welcome.error = true;
+        errors.welcome.message = e;
+      }
     }
     await deleteWeavers(weavers);
     console.log('#############################################');
@@ -296,11 +325,17 @@ const checkForFollowers = async () => {
     for (let i = 0; i < newFollowers.length; i += 1) {
       console.log('Sending welcome message for: ' + newFollowers[i].name);
       const thread = ig.entity.directThread([newFollowers[i].id.toString()]);
-      await thread.broadcastText(`Woof woof 🐶
+      try {
+        await thread.broadcastText(`Woof woof 🐶
         Köszönöm, hogy bekövettél! ♥️
         Van facebookom is, ha gondolod ott is bökj a lájkra: https://fb.com/szupermaszat 🐕
         Ha esetleg összefutnánk Debrecenben, pacsizzunk le 🐾
         Pacsi 🐾`);
+      } catch (e) {
+        console.error(e);
+        errors.welcome.error = true;
+        errors.welcome.message = e;
+      }
     }
     const arr = [];
     newFollowers.forEach((follower) => {
@@ -364,20 +399,43 @@ const checkForNewMessages = async () => {
       if (users[i].pk === 3252954429) {
         console.log(`🐾 Sending reply for my MOM ❤️ ${users[i].full_name}`);
         const thread = ig.entity.directThread([users[i].pk.toString()]);
-        await thread.broadcastText(vipMsg.mommy);
+        try {
+          await thread.broadcastText(vipMsg.mommy);
+        } catch (e) {
+          console.error(e);
+          errors.direct.error = true;
+          errors.direct.message = e;
+        }
       } else if (users[i].pk === 1021455391) {
         console.log(`🐾 Sending reply for my dad 🐾 ${users[i].full_name}`);
         const thread = ig.entity.directThread([users[i].pk.toString()]);
-        await thread.broadcastText(vipMsg.daddy);
+        try {
+          await thread.broadcastText(vipMsg.daddy);
+        } catch (e) {
+          console.error(e);
+          errors.direct.error = true;
+          errors.direct.message = e;
+        }
       } else if (users[i].pk === 1765151538 || users[i].pk === 289725460) {
         console.log(`🐾 Sending reply for my buddy ${users[i].full_name}`);
         const thread = ig.entity.directThread([users[i].pk.toString()]);
-        await thread.broadcastText(vipMsg.buddy(users[i].full_name));
+        try {
+          await thread.broadcastText(vipMsg.buddy(users[i].full_name));
+        } catch (e) {
+          console.error(e);
+          errors.direct.error = true;
+          errors.direct.message = e;
+        }
       } else {
         console.log('Sending reply to user: ' + users[i].full_name);
         const thread = ig.entity.directThread([users[i].pk.toString()]);
-        await thread.broadcastText(jokes[Math.floor(Math.random() * jokes.length)]);
-        
+        try {
+          await thread.broadcastText(jokes[Math.floor(Math.random() * jokes.length)]);
+        } catch (e) {
+          console.error(e);
+          errors.direct.error = true;
+          errors.direct.message = e;
+        }
       }
     }
   }
@@ -406,7 +464,14 @@ const checkForDirectRequests = async () => {
   for (let i = 0; i < users.length; i += 1) {
     console.log('Sending reply to user: ' + users[i].full_name);
     const thread = ig.entity.directThread([users[i].pk.toString()]);
-    await thread.broadcastText(jokes[Math.floor(Math.random() * jokes.length)]);
+    try {
+      await thread.broadcastText(jokes[Math.floor(Math.random() * jokes.length)]);
+    } catch (e) {
+      console.error(e);
+      errors.directPending.error = true;
+      errors.directPending.message = e;
+    }
+    
     /* await updateDocument(users[i]._id, {
       timestamp: moment().unix(),
     }, 'users'); */
@@ -434,6 +499,8 @@ const searchForUsersToFollow = async () => {
     }, 'sonar');
   } catch (e) {
     console.error(e);
+    errors.follow.error = true;
+    errors.follow.message = e;
     /* await updateDocument(dbUsers[0]._id, {
       following: true,
       closed: true,
@@ -470,6 +537,8 @@ const unfollowFollowedUsers = async () => {
       }, 'sonar');
     } catch (e) {
       console.error(e);
+      errors.unfollow.error = true;
+      errors.unfollow.message = e;
       throw new Error('There was an error sending unfollow to user: ' + dbUsers[0].name)
     }
   } else {
@@ -535,16 +604,38 @@ const getAllItemsFromFeed = async(feed) => {
   if(loggedIn) {
     setInterval(async () => {
       if(!debounce) {
+        console.log('#############################################');
+        console.log(`Methods with errors:`);
+        console.log('#############################################');
+        for (let [key, value] of Object.entries(errors)) {
+          console.log(key.toUpperCase(), errors[key].error);
+        }
+        console.log('#############################################');
         debouce = true;
-        console.log('Started checking for follower changes');
-        await checkForFollowers();
-        console.log('Checking for followers ended, going to next task...');
-        console.log('Started checking for direct messages');
-        await checkForDirectRequests();
-        console.log('Checking for direct messages ended, going to next task...');
-        console.log('Started checking for new messages');
-        await checkForNewMessages();
-        console.log('Checking for new messages ended, going to next task...');
+        if (!errors.welcome.error) {
+          console.log('Started checking for follower changes');
+          await checkForFollowers();
+          console.log('Checking for followers ended, going to next task...');
+        } else {
+          console.error('Skipping checking for new followers cause of previous errors');
+          console.error(errors.welcome.message);
+        }
+        if (!errors.directPending.error) {
+          console.log('Started checking for pending direct messages');
+          await checkForDirectRequests();
+          console.log('Checking for direct messages ended, going to next task...');
+        } else {
+          console.error('Skipping checking for pending direct messages cause of previous errors');
+          console.error(errors.directPending.message);
+        }
+        if (!errors.direct.error) {
+          console.log('Started checking for new direct messages');
+          await checkForNewMessages();
+          console.log('Checking for new messages ended, now sleeping for 600 seconds');
+        } else {
+          console.error('Skipping checking for new direct messages cause of previous errors');
+          console.error(errors.direct.message);
+        }
         debouce = false;
       } else {
         console.log(`Previous job still didn't finished yet. Skipping this round`);
@@ -552,13 +643,30 @@ const getAllItemsFromFeed = async(feed) => {
     }, 600000);
     setInterval(async() => {
       if(!debounce2) {
+        console.log('#############################################');
+        console.log(`Methods with errors:`);
+        console.log('#############################################');
+        for (let [key, value] of Object.entries(errors)) {
+          console.log(key.toUpperCase(), errors[key].error);
+        }
+        console.log('#############################################');
         debounce2 = true;
-        console.log('Searching for users to follow');
-        await searchForUsersToFollow();
-        console.log('Searching for users to follow ended, going to next task...');
-        console.log('Searching for users to unfollow');
-        await unfollowFollowedUsers();
-        console.log('Checking for users to unfollow ended, now sleeping for 30s');
+        if (!errors.follow.error) {
+          console.log('Searching for users to follow');
+          await searchForUsersToFollow();
+          console.log('Searching for users to follow ended, going to next task...');
+        } else {
+          console.error('Skipping searching for users to follow cause of previous errors');
+          console.error(errors.follow.message);
+        }
+        if (!errors.unfollow.error) {
+          console.log('Searching for users to unfollow');
+          await unfollowFollowedUsers();
+          console.log('Checking for users to unfollow ended, now sleeping for 1800 seconds');
+        } else {
+          console.error('Skipping unfollowing users cause of previous errors');
+          console.error(errors.unfollow.message);
+        }
         debounce2 = false;
       }
     }, 1800000);
