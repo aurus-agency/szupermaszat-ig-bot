@@ -2,6 +2,7 @@ const express = require('express');
 const http = require("http");
 const cool = require('cool-ascii-faces');
 const inquirer = require('inquirer');
+const moment = require('moment');
 const MongoClient = require('mongodb').MongoClient;
 const { IgApiClient } = require('instagram-private-api');
 const { get } = require('lodash');
@@ -104,7 +105,7 @@ const vipReactions = {
   Mani 🐾`,
 }
 
-const checkIfExists = async () => {
+const findInDatabase = async (query = null, collection) => {
   let client = null;
   try {
     client = await MongoClient.connect(process.env.MONGODB_URI, {
@@ -114,11 +115,11 @@ const checkIfExists = async () => {
   } catch (e) {
     throw new Error(e);
   }
-  const result = await client.db('heroku_8v05lcq1').collection('users').find().toArray();
+  const result = await client.db('heroku_8v05lcq1').collection(collection).find(query ? query : {}).toArray();
   return result;
 }
 
-const insertToDatabase = async (users) => {
+const insertToDatabase = async (users, collection) => {
   let client = null;
   try {
     client = await MongoClient.connect(process.env.MONGODB_URI, {
@@ -128,7 +129,25 @@ const insertToDatabase = async (users) => {
   } catch (e) {
     throw new Error(e);
   }
-  const result = await client.db('heroku_8v05lcq1').collection('users').insertMany(users);
+  const result = await client.db('heroku_8v05lcq1').collection(collection).insertMany(users);
+  return result;
+}
+
+const updateDocument = async (id, data, collection) => {
+  let client = null;
+  try {
+    client = await MongoClient.connect(process.env.MONGODB_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true
+    });
+  } catch (e) {
+    throw new Error(e);
+  }
+  const result = await client.db('heroku_8v05lcq1').collection(collection).updateOne({
+    _id: id,
+  }, {
+    $set: data
+  });
   return result;
 }
 
@@ -201,7 +220,7 @@ const checkForFollowers = async () => {
     });
     ids.push(user.pk);
   });
-  const dbUsers = await checkIfExists();
+  const dbUsers = await findInDatabase({} ,'users');
   const leavers = dbUsers.filter((elem) => !users.find(({ id }) => elem.id === id));
   const newFollowers = users.filter((elem) => !dbUsers.find(({ id }) => elem.id === id));
   console.log('#############################################');
@@ -241,50 +260,196 @@ const checkForFollowers = async () => {
         Ha esetleg összefutnánk Debrecenben, pacsizzunk le 🐾
         Pacsi 🐾`);
     }
-    await insertToDatabase(newFollowers);
+    const arr = [];
+    newFollowers.forEach((follower) => {
+      const now = moment().unix();
+      arr.push({
+        ...follower,
+        timestamp: now,
+      })
+    });
+    await insertToDatabase(arr, 'users');
     console.log('#############################################');
     console.log('The following users has been added to the database');
     console.log('#############################################');
-    console.log(newFollowers);
+    console.log(arr);
   }
 };
 
 const checkForNewMessages = async () => {
   const items = await ig.feed.directInbox().items();
+  const dbUsers = await findInDatabase({}, 'users');
   const users = [];
+  const disallowedUsers = [];
   const unread = items.filter(x => x.read_state > 0);
   unread.forEach((msg) => {
     if(msg.users.length > 0) {
       users.push(msg.users[0]);
     }
   });
+  const unreadMessages = dbUsers.filter((elem) => users.find(({ pk }) => elem.id === pk));
+  unreadMessages.forEach((user) => {
+    if(user.timestamp) {
+      const now = moment().unix();
+      const convertToDate = moment.unix(user.timestamp).format();
+      const add1Day = moment(convertToDate).add(1, 'days');
+      const added = moment(add1Day).format();
+      const time = moment(add1Day).unix();
+      if(now <= time) {
+        disallowedUsers.push(user.id);
+      }
+    } else {
+      const now = moment().unix();
+      updateDocument(user._id, {
+        timestamp: now,
+      }, 'users');
+    }
+  });
   console.log('#############################################');
   console.log(`The following users has left us message that we didn't read yet`);
   console.log('#############################################');
   users.forEach((user) => {
-    console.log(user.full_name, '(' + user.pk, user.username + ')');
+    console.log(user.full_name, '(' + user.pk, user.username + ')', disallowedUsers.includes(user.id) ? 'Msg' : 'No msg');
   });
   for (let i = 0; i < users.length; i += 1) {
-    if (users[i].pk === 3252954429) {
-      console.log(`🐾 Sending reply for my MOM ❤️ ${users[i].full_name}`);
-      const thread = ig.entity.directThread([users[i].pk.toString()]);
-      await thread.broadcastText(vipMsg.mommy);
-    } else if (users[i].pk === 1021455391) {
-      console.log(`🐾 Sending reply for my dad 🐾 ${users[i].full_name}`);
-      const thread = ig.entity.directThread([users[i].pk.toString()]);
-      await thread.broadcastText(vipMsg.daddy);
-    } else if (users[i].pk === 1765151538 || users[i].pk === 289725460) {
-      console.log(`🐾 Sending reply for my buddy ${users[i].full_name}`);
-      const thread = ig.entity.directThread([users[i].pk.toString()]);
-      await thread.broadcastText(vipMsg.buddy(users[i].full_name));
-    } else {
-      console.log('Sending reply to user: ' + users[i].full_name);
-      const thread = ig.entity.directThread([users[i].pk.toString()]);
-      await thread.broadcastText(jokes[Math.floor(Math.random() * jokes.length)]);
+    if(disallowedUsers.includes(users[i].pk)) {
+      if (users[i].pk === 3252954429) {
+        console.log(`🐾 Sending reply for my MOM ❤️ ${users[i].full_name}`);
+        const thread = ig.entity.directThread([users[i].pk.toString()]);
+        await thread.broadcastText(vipMsg.mommy);
+      } else if (users[i].pk === 1021455391) {
+        console.log(`🐾 Sending reply for my dad 🐾 ${users[i].full_name}`);
+        const thread = ig.entity.directThread([users[i].pk.toString()]);
+        await thread.broadcastText(vipMsg.daddy);
+      } else if (users[i].pk === 1765151538 || users[i].pk === 289725460) {
+        console.log(`🐾 Sending reply for my buddy ${users[i].full_name}`);
+        const thread = ig.entity.directThread([users[i].pk.toString()]);
+        await thread.broadcastText(vipMsg.buddy(users[i].full_name));
+      } else {
+        console.log('Sending reply to user: ' + users[i].full_name);
+        const thread = ig.entity.directThread([users[i].pk.toString()]);
+        await thread.broadcastText(jokes[Math.floor(Math.random() * jokes.length)]);
+        await updateDocument(users[i]._id, {
+          timestamp: moment().unix(),
+        }, 'users');
+      }
     }
   }
   return unread;
 }
+
+const checkForDirectRequests = async () => {
+  const items = await ig.feed.directPending().items();
+  console.log('#############################################');
+  console.log(`The following users would like to send us message, however it is pending`);
+  console.log('#############################################');
+  items.forEach((user) => {
+    console.log(user.full_name, '(' + user.pk, user.username + ')');
+  });
+  // TODO: Accept pending directs;
+  return items;
+}
+
+const searchForUsersToFollow = async () => {
+  console.log('Getting users from the sonar collection...');
+  const dbUsers = await findInDatabase({ isPrivate: false, following: false }, 'sonar');
+  console.log('Total results from database: ' + dbUsers.length);
+  console.log('Getting the first user from the list...');
+  console.log('#############################################');
+  console.log(`The first user on the list`);
+  console.log('#############################################');
+  console.log(dbUsers[0]);
+  console.log(dbUsers[0].fullName + ',' + dbUsers[0].username);
+  console.log('Sending follow to: ' + dbUsers[0].fullName + ',' + dbUsers[0].username);
+  const now = moment().unix();
+  try {
+    await ig.entity.profile(dbUsers[0].id).checkFollow();
+    await updateDocument(dbUsers[0]._id, {
+      following: true,
+      closed: false,
+      timestamp: now,
+    }, 'sonar');
+  } catch (e) {
+    throw new Error('There was an error sending follow to user: ' + dbUsers[0].name)
+  }
+  return 'Done';
+}
+
+const unfollowFollowedUsers = async () => {
+  console.log('Getting users from the sonar collection...');
+  const dbUsers = await findInDatabase({ isPrivate: false, following: true, closed: false }, 'sonar');
+  console.log('Total results from database: ' + dbUsers.length);
+  console.log('#############################################');
+  console.log(`The following users should be unfollowed `);
+  console.log('#############################################');
+  dbUsers.forEach((user) => {
+    console.log(user.fullName, '(' + user.id, user.username + ')');
+  });
+  const now = moment().unix();
+  const convertToDate = moment.unix(dbUsers[0].timestamp).format();
+  const add1Day = moment(convertToDate).add(1, 'days');
+  const time = moment(add1Day).unix();
+  if(now >= time) {
+    console.log('Getting the first user from the list...');
+    console.log(dbUsers[0].fullName);
+    try {
+      console.log('Sending unfollow to: ' + dbUsers[0].fullName + ',' + dbUsers[0].username);
+      await ig.entity.profile(dbUsers[0].id).checkUnfollow();
+      await updateDocument(dbUsers[0]._id, {
+        closed: true,
+        timestamp: now,
+      }, 'sonar');
+    } catch (e) {
+      throw new Error('There was an error sending unfollow to user: ' + dbUsers[0].name)
+    }
+  } else {
+    console.log('No users found to unfollow..');
+  }
+  return 'Done';
+}
+
+// USE THIS FUNCTION TO FILL DATABASE WITH EXTREME AMOUNT OF PROFILES THAT THE BOT WILL ITERATE FOLLOW AND THEN UNFOLLOW THEM AFTER 24H
+const awaitFunct = () => new Promise((resolve, reject) => {
+  setTimeout(() => {
+    resolve();
+  }, 10000);
+});
+
+const forEachFunct = async(arr) => {
+  let toDb = [];
+  /* items.forEach((outer) => {
+    
+  }); */
+  arr.forEach((inner) => {
+    const now = moment().unix();
+    toDb.push({
+      id: inner.pk,
+      username: inner.username,
+      fullName: inner.full_name,
+      isPrivate: inner.is_private,
+      timestamp: now,
+      following: false,
+    });
+  });
+  await insertToDatabase(toDb, 'sonar');
+  return 'ok';
+}
+
+const getAllItemsFromFeed = async(feed) => {
+  let items = [];
+  let idx = 1;
+  do {
+    console.log(idx);
+    // await awaitFunct();
+    items = await feed.items();
+    await forEachFunct(items);
+    console.log('Done: ' + idx);
+    idx += 1;
+  } while(feed.isMoreAvailable());
+  console.log('Kész');
+  return items;
+}
+// USE THIS FUNCTION TO FILL DATABASE WITH EXTREME AMOUNT OF PROFILES THAT THE BOT WILL ITERATE FOLLOW AND THEN UNFOLLOW THEM AFTER 24H
 
 (async() => {
   let loggedIn = null;
@@ -293,16 +458,27 @@ const checkForNewMessages = async () => {
   } catch (e) {
     throw new Error(e);
   }
+  // await getAllItemsFromFeed(ig.feed.accountFollowers('')); // DO NOT UNCOMMENT ONLY FOR IMPORT
   // await checkForNewMessages();
+  // await searchForUsersToFollow();
   if(loggedIn) {
     setInterval(async () => {
       console.log('Started checking for follower changes');
       await checkForFollowers();
       console.log('Checking for followers ended, going to next task...');
-      console.log('Started checking for follower changes');
+      console.log('Started checking for direct messages');
+      await checkForDirectRequests();
+      console.log('Checking for direct messages ended, going to next task...');
+      console.log('Started checking for new messages');
       await checkForNewMessages();
-      console.log('Checking for followers ended, now sleeping for 30s');
-    }, 30000);
+      console.log('Checking for new messages ended, going to next task...');
+      console.log('Searching for users to follow');
+      await searchForUsersToFollow();
+      console.log('Searching for users to follow ended, going to next task...');
+      console.log('Searching for users to unfollow');
+      await unfollowFollowedUsers();
+      console.log('Checking for users to unfollow ended, now sleeping for 30s');
+    }, 60000);
   }
 })();
 
