@@ -386,7 +386,7 @@ const checkForNewMessages = async () => {
       const add1Day = moment(convertToDate).add(2, 'days');
       const time = moment(add1Day).unix();
       try {
-        await updateDocument(user._id, {
+        updateDocument(user._id, {
           timestamp: time,
         }, 'users');
       } catch (e) {
