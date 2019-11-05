@@ -537,13 +537,13 @@ const getAllItemsFromFeed = async(feed) => {
       if(!debounce) {
         debouce = true;
         console.log('Started checking for follower changes');
-        // await checkForFollowers();
+        await checkForFollowers();
         console.log('Checking for followers ended, going to next task...');
         console.log('Started checking for direct messages');
-        // await checkForDirectRequests();
+        await checkForDirectRequests();
         console.log('Checking for direct messages ended, going to next task...');
         console.log('Started checking for new messages');
-        // await checkForNewMessages();
+        await checkForNewMessages();
         console.log('Checking for new messages ended, going to next task...');
         debouce = false;
       } else {
@@ -554,10 +554,10 @@ const getAllItemsFromFeed = async(feed) => {
       if(!debounce2) {
         debounce2 = true;
         console.log('Searching for users to follow');
-        // await searchForUsersToFollow();
+        await searchForUsersToFollow();
         console.log('Searching for users to follow ended, going to next task...');
         console.log('Searching for users to unfollow');
-        // await unfollowFollowedUsers();
+        await unfollowFollowedUsers();
         console.log('Checking for users to unfollow ended, now sleeping for 30s');
         debounce2 = false;
       }
