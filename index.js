@@ -402,11 +402,12 @@ const unfollowFollowedUsers = async () => {
     try {
       console.log('Sending unfollow to: ' + dbUsers[0].fullName + ',' + dbUsers[0].username);
       await ig.entity.profile(dbUsers[0].id).checkUnfollow();
-      await updateDocument(dbUsers[0]._id, {
+      /* await updateDocument(dbUsers[0]._id, {
         closed: true,
         timestamp: now,
-      }, 'sonar');
+      }, 'sonar'); */
     } catch (e) {
+      console.log(e);
       throw new Error('There was an error sending unfollow to user: ' + dbUsers[0].name)
     }
   } else {
