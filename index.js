@@ -213,7 +213,6 @@ const getFollowers = async () => {
   do {
     items.push(await followers.items());
     await forEachFunct(items);
-    idx += 1;
   } while(followers.isMoreAvailable());
   items.forEach((outer) => {
     outer.forEach((inner) => {
