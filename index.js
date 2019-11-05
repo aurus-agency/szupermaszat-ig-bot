@@ -397,7 +397,6 @@ const checkForDirectRequests = async () => {
       users.push(msg.users[0]);
     }
   });
-  const unreadMessages = dbUsers.filter((elem) => users.find(({ pk }) => elem.id === pk));
   console.log('#############################################');
   console.log(`The following users would like to send us message, however it is pending`);
   console.log('#############################################');
