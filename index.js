@@ -502,7 +502,7 @@ const getAllItemsFromFeed = async(feed) => {
       } else {
         console.log(`Previous job still didn't finished yet. Skipping this round`);
       }
-    }, 30000);
+    }, 150000);
     setInterval(async() => {
       if(!debounce2) {
         debounce2 = true;
@@ -514,7 +514,7 @@ const getAllItemsFromFeed = async(feed) => {
         console.log('Checking for users to unfollow ended, now sleeping for 30s');
         debounce2 = false;
       }
-    }, 120000);
+    }, 300000);
   }
 })();
 
