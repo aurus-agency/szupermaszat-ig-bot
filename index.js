@@ -342,6 +342,12 @@ const checkForFollowers = async () => {
         errors.welcome.error = true;
         errors.welcome.message = e;
       }
+      if (errors.welcome.error) {
+        break;
+      } else {
+        console.log('Waiting 30seconds before sending the next message');
+        await sleep();
+      }
     }
     const arr = [];
     newFollowers.forEach((follower) => {
@@ -449,8 +455,12 @@ const checkForNewMessages = async () => {
           errors.direct.message = e;
         }
       }
-      console.log('Waiting 30seconds before sending the next message');
-      await sleep();
+      if (errors.direct.error) {
+        break;
+      } else {
+        console.log('Waiting 30seconds before sending the next message');
+        await sleep();
+      }
     //}
   }
   return unread;
