@@ -495,7 +495,12 @@ const checkForDirectRequests = async () => {
       errors.directPending.error = true;
       errors.directPending.message = e;
     }
-    
+    if (errors.directPending.error) {
+      break;
+    } else {
+      console.log('Waiting 30seconds before sending the next message');
+      await sleep();
+    }
     /* await updateDocument(users[i]._id, {
       timestamp: moment().unix(),
     }, 'users'); */
@@ -532,6 +537,8 @@ const searchForUsersToFollow = async () => {
     }, 'sonar'); */
     throw new Error('There was an error sending follow to user: ' + dbUsers[0].name);
   }
+  console.log('Waiting 30seconds before going to the next task');
+  await sleep();
   return 'Done';
 }
 
@@ -568,6 +575,8 @@ const unfollowFollowedUsers = async () => {
   } else {
     console.log('No users found to unfollow..');
   }
+  console.log('Waiting 30seconds before going to the next task');
+  await sleep();
   return 'Done';
 }
 
