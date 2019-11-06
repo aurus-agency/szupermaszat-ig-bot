@@ -228,6 +228,12 @@ const instagramLogin = async () => {
   return status; 
 }
 
+const sleep = () => new Promise((resolve, reject) => {
+  setTimeout(() => {
+    resolve();
+  }, 30000);
+});
+
 const getFollowers = async () => {
   console.log('Getting list of followers...');
   const followers = await ig.feed.accountFollowers(auth.pk);
@@ -442,8 +448,10 @@ const checkForNewMessages = async () => {
           errors.direct.error = true;
           errors.direct.message = e;
         }
-      // }
-    }
+      }
+      console.log('Waiting 30seconds before sending the next message');
+      await sleep();
+    //}
   }
   return unread;
   /* await updateDocument(users[i]._id, {
