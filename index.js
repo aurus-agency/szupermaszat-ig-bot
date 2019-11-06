@@ -369,7 +369,7 @@ const checkForNewMessages = async () => {
       users.push(msg.users[0]);
     }
   });
-  const unreadMessages = dbUsers.filter((elem) => users.find(({ pk }) => elem.id === pk));
+  /* const unreadMessages = dbUsers.filter((elem) => users.find(({ pk }) => elem.id === pk));
   unreadMessages.forEach((user) => {
     if(user.timestamp) {
       const now = moment().unix();
@@ -393,15 +393,15 @@ const checkForNewMessages = async () => {
         console.error('User not in DB cause of not following us.');
       }
     }
-  });
+  }); */
   console.log('#############################################');
   console.log(`The following users has left us message that we didn't read yet`);
   console.log('#############################################');
   users.forEach((user) => {
-    console.log(user.full_name, '(' + user.pk, user.username + ')', disallowedUsers.includes(user.id) ? '24 Hour lock' : 'Not locked');
+    console.log(user.full_name, '(' + user.pk, user.username + ')'); //, disallowedUsers.includes(user.id) ? '24 Hour lock' : 'Not locked');
   });
   for (let i = 0; i < users.length; i += 1) {
-    if(!disallowedUsers.includes(users[i].pk)) {
+    // if(!disallowedUsers.includes(users[i].pk)) {
       if (users[i].pk === 3252954429) {
         console.log(`🐾 Sending reply for my MOM ❤️ ${users[i].full_name}`);
         const thread = ig.entity.directThread([users[i].pk.toString()]);
@@ -442,7 +442,7 @@ const checkForNewMessages = async () => {
           errors.direct.error = true;
           errors.direct.message = e;
         }
-      }
+      // }
     }
   }
   return unread;
