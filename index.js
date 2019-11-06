@@ -38,6 +38,32 @@ const errors = {
   },
 }
 
+const welcomes = [
+  `Woof woof 🐶
+    Köszönöm, hogy bekövettél! ♥️
+    Van facebookom is, ha gondolod ott is bökj a lájkra 🐕
+    Ja igen, a linket megtalálod a bioba.
+    Ha esetleg összefutnánk Debrecenben, pacsizzunk le 🐾
+    Pacsi 🐾`,
+  `Woof woof 🐶
+    Nocsak nocsak egy újabb követő
+    Hálásan köszönöm, hogy rányomtál a kicsi kék gombra 🐾
+    Ha gondolod facebookon is megteheted ugyanezt 🐕
+    A linket megtalálod a bioba.
+    Ohh és még valami ha esetleg azt látnád, hogy előtted sétálok el Debrecen utcáin
+    akkor mindenképpen pacsizzunk le 🐾
+    Pacsi 🐾`,
+  `Woof woof 🐶
+    Hmmm te valóban bekövettél engem? Nem is rossz
+    Ezért neked jár egy pacsi 🐾
+    Még kettő ha facebookon is megteszed ugyanezt 🐕
+    Link a bioba
+    Ha Debrecen utcáit járva azt látod, hogy szupermaszat épp ott sétál
+    akkor nyugodtan gyere oda és pacsizzünk le
+    A varázsszó: szupermaszat, de jó hangosan 🐶
+    Pacsi 🐾`
+]
+
 const jokes = [
   `Woof woof 🐶
     Köszi, hogy írtál nekem, bár révén, hogy én csak egy kutya vagyok, nem  tudok válaszolni, de talán a gazdi :)
@@ -330,13 +356,9 @@ const checkForFollowers = async () => {
   if(newFollowers.length > 0) {
     for (let i = 0; i < newFollowers.length; i += 1) {
       console.log('Sending welcome message for: ' + newFollowers[i].name);
-      const thread = ig.entity.directThread([newFollowers[i].id.toString()]);
+      const thread = ig.entity.directThread(newFollowers[i].id.toString());
       try {
-        await thread.broadcastText(`Woof woof 🐶
-        Köszönöm, hogy bekövettél! ♥️
-        Van facebookom is, ha gondolod ott is bökj a lájkra: https://fb.com/szupermaszat 🐕
-        Ha esetleg összefutnánk Debrecenben, pacsizzunk le 🐾
-        Pacsi 🐾`);
+        await thread.broadcastText(welcomes[Math.floor(Math.random() * welcomes.length)]);
       } catch (e) {
         console.error(e);
         errors.welcome.error = true;
