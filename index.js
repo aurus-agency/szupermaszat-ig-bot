@@ -635,6 +635,14 @@ const getAllItemsFromFeed = async(feed) => {
   // await searchForUsersToFollow();
   // await checkForDirectRequests();
   // await checkForNewMessages();
+  console.log('#############################################');
+  console.log(`Init tasks for first time`);
+  console.log('#############################################');
+  await checkForFollowers();
+  await checkForDirectRequests();
+  await checkForNewMessages();
+  await searchForUsersToFollow();
+  await unfollowFollowedUsers();
   if(loggedIn) {
     setInterval(async () => {
       if(!debounce) {
