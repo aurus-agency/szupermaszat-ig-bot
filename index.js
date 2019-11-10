@@ -356,7 +356,7 @@ const checkForFollowers = async () => {
   if(newFollowers.length > 0) {
     for (let i = 0; i < newFollowers.length; i += 1) {
       console.log('Sending welcome message for: ' + newFollowers[i].name);
-      const thread = ig.entity.directThread(newFollowers[i].id.toString());
+      const thread = ig.entity.directThread([newFollowers[i].id.toString()]);
       try {
         await thread.broadcastText(welcomes[Math.floor(Math.random() * welcomes.length)]);
       } catch (e) {
@@ -660,11 +660,11 @@ const getAllItemsFromFeed = async(feed) => {
   console.log('#############################################');
   console.log(`Init tasks for first time`);
   console.log('#############################################');
-  //await checkForFollowers();
-  //await checkForDirectRequests();
-  //await checkForNewMessages();
-  //await searchForUsersToFollow();
-  //await unfollowFollowedUsers();
+  // await checkForFollowers();
+  // await checkForDirectRequests();
+  // await checkForNewMessages();
+  // await searchForUsersToFollow();
+  // await unfollowFollowedUsers();
   if(loggedIn) {
     setInterval(async () => {
       if(!debounce) {
