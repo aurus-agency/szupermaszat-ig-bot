@@ -59,7 +59,7 @@ const welcomes = [
     Még kettő ha facebookon is megteszed ugyanezt 🐕
     Link a bioba
     Ha Debrecen utcáit járva azt látod, hogy szupermaszat épp ott sétál
-    akkor nyugodtan gyere oda és pacsizzünk le
+    akkor nyugodtan gyere oda és pacsizzunk le
     A varázsszó: szupermaszat, de jó hangosan 🐶
     Pacsi 🐾`
 ]
@@ -400,7 +400,11 @@ const checkForNewMessages = async () => {
   const unread = messages.filter(x => x.read_state > 0);
   unread.forEach((msg) => {
     if(msg.users.length > 0) {
-      users.push(msg.users[0]);
+      users.push({
+        ...msg.users[0],
+        ...msg.last_permanent_item,
+        items: msg.items,
+      });
     }
   });
   /* const unreadMessages = dbUsers.filter((elem) => users.find(({ pk }) => elem.id === pk));
@@ -432,10 +436,28 @@ const checkForNewMessages = async () => {
   console.log(`The following users has left us message that we didn't read yet`);
   console.log('#############################################');
   users.forEach((user) => {
+    user.items.forEach((msg) => {
+      console.log(msg.timestamp);
+    });
     console.log(user.full_name, '(' + user.pk, user.username + ')'); //, disallowedUsers.includes(user.id) ? '24 Hour lock' : 'Not locked');
   });
   for (let i = 0; i < users.length; i += 1) {
     // if(!disallowedUsers.includes(users[i].pk)) {
+      console.log(users[i].item_type);
+    if(users[i].item_type === 'action_log') {
+      console.log('reakció');
+    } else if (users[i].item_type === 'reel_share') {
+      console.log('Sztory válasz');
+    } else if (users[i].item_type === 'media') {
+      console.log('Media');
+    } else if (users[i].item_type === 'profile') {
+      console.log('profil');
+    } else if (users[i].item_type === 'media_share') {
+      console.log('profil');
+    } else if (users[i].item_type === 'text') {
+      console.log('profil');
+    }
+    /* 
       if (users[i].pk === 3252954429) {
         console.log(`🐾 Sending reply for my MOM ❤️ ${users[i].full_name}`);
         const thread = ig.entity.directThread([users[i].pk.toString()]);
@@ -482,7 +504,7 @@ const checkForNewMessages = async () => {
       } else {
         console.log('Waiting 30seconds before sending the next message');
         await sleep();
-      }
+      }*/
     //}
   }
   return unread;
@@ -662,7 +684,7 @@ const getAllItemsFromFeed = async(feed) => {
   console.log('#############################################');
   // await checkForFollowers();
   // await checkForDirectRequests();
-  // await checkForNewMessages();
+  await checkForNewMessages();
   // await searchForUsersToFollow();
   // await unfollowFollowedUsers();
   if(loggedIn) {
