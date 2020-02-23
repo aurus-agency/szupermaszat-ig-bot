@@ -68,12 +68,12 @@ app.hooks(appHooks);
 if (process.env.NODE_ENV === 'production') {
   cron.schedule('*/5 * * * *', () => {
     console.log('Keepalive');
-    http.get('http://ancient-shelf-31612.herokuapp.com/');
+    http.get('https://szupermaszat.herokuapp.com');
   });
   /* setInterval(() => {
     console.log('Keepalive');
-    http.get('http://ancient-shelf-31612.herokuapp.com/');
-  }, 300000); */
+    http.get('https://szupermaszat.herokuapp.com');
+  }, 30000); */
 }
 
 module.exports = app;
