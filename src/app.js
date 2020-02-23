@@ -68,11 +68,11 @@ app.hooks(appHooks);
 if (process.env.NODE_ENV === 'production') {
   cron.schedule('*/5 * * * *', () => {
     console.log('Keepalive');
-    http.get('https://szupermaszat.herokuapp.com');
+    http.get('http://szupermaszat.herokuapp.com');
   });
   /* setInterval(() => {
     console.log('Keepalive');
-    http.get('https://szupermaszat.herokuapp.com');
+    http.get('http://szupermaszat.herokuapp.com');
   }, 30000); */
 }
 
