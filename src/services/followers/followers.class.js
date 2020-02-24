@@ -102,11 +102,18 @@ exports.Followers = class Followers {
       console.log(usersToUnfollow[0].fullName);
       try {
         console.log('Sending unfollow to: ' + usersToUnfollow[0].fullName + ',' + usersToUnfollow[0].username);
-        await this.sendUnfollow(usersToUnfollow[0]);
-        await this.app.service('sonar').patch(usersToUnfollow[0]._id, {
-          closed: true,
-          timestamp: now,
-        });
+        try {
+          await this.sendUnfollow(usersToUnfollow[0]);
+          await this.app.service('sonar').patch(usersToUnfollow[0]._id, {
+            closed: true,
+            timestamp: now,
+          });
+        } catch (e) {
+          await this.app.service('sonar').patch(usersToUnfollow[0]._id, {
+            closed: true,
+            timestamp: now,
+          });
+        }
       } catch (e) {
         console.error(e);
         // errors.unfollow.error = true;
