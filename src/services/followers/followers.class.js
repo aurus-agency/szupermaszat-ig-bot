@@ -51,9 +51,9 @@ exports.Followers = class Followers {
     console.log('#############################################');
     console.log(usersToFollow[0]);
     console.log(usersToFollow[0].fullName + ',' + usersToFollow[0].username);
-    console.log('Sending follow to: ' + usersToFollow[0].fullName + ',' + usersToFollow[0].username);
     const now = moment().unix();
     try {
+      console.log('Sending follow to: ' + usersToFollow[0].fullName + ',' + usersToFollow[0].username);
       await this.sendFollow(usersToFollow[0]);
       await this.app.service('sonar').patch(usersToFollow[0]._id, {
         following: true,
@@ -62,6 +62,11 @@ exports.Followers = class Followers {
       });
     } catch (e) {
       console.error(e);
+      await this.app.service('sonar').patch(usersToFollow[0]._id, {
+        following: true,
+        closed: false,
+        timestamp: now,
+      });
       // errors.follow.error = true;
       // errors.follow.message = e;
       /* await updateDocument(dbUsers[0]._id, {
@@ -69,7 +74,7 @@ exports.Followers = class Followers {
         closed: true,
         timestamp: now,
       }, 'sonar'); */
-      throw new Error('There was an error sending follow to user: ' + usersToFollow[0].name);
+      // throw new Error('There was an error sending follow to user: ' + usersToFollow[0].name);
     }
     // console.log('Waiting 30seconds before going to the next task');
     // await sleep();
@@ -102,19 +107,16 @@ exports.Followers = class Followers {
       console.log(usersToUnfollow[0].fullName);
       try {
         console.log('Sending unfollow to: ' + usersToUnfollow[0].fullName + ',' + usersToUnfollow[0].username);
-        try {
-          await this.sendUnfollow(usersToUnfollow[0]);
-          await this.app.service('sonar').patch(usersToUnfollow[0]._id, {
-            closed: true,
-            timestamp: now,
-          });
-        } catch (e) {
-          await this.app.service('sonar').patch(usersToUnfollow[0]._id, {
-            closed: true,
-            timestamp: now,
-          });
-        }
+        await this.sendUnfollow(usersToUnfollow[0]);
+        await this.app.service('sonar').patch(usersToUnfollow[0]._id, {
+          closed: true,
+          timestamp: now,
+        });
       } catch (e) {
+        await this.app.service('sonar').patch(usersToUnfollow[0]._id, {
+          closed: true,
+          timestamp: now,
+        });
         console.error(e);
         // errors.unfollow.error = true;
         // errors.unfollow.message = e;
